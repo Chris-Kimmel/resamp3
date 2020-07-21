@@ -31,7 +31,7 @@
 # must not already contain a directory of this name.
 
 conda activate tombo2 # Change conda environment name to match your own
-trap 'conda deactivate tombo2' EXIT # Ensures deactivation no matter what
+trap 'set +u; conda deactivate' EXIT # Ensures deactivation no matter what
 # Really it shouldn't matter that the environment deactivates, since this script
 # is intended to run as a qsub job
 
@@ -44,37 +44,41 @@ NUM_ARG=$3
 REF_ARG=$4
 WORK_DIR=$5
 
-if [ -e "$WORK_DIR" ]
+# EXT is to help distinguish output files from runs with different parameters
+EXT=''
+WORK_SUBDIR="${WORK_DIR}"/"${NUM_ARG}"_reads${EXT}
+
+if [ -e "$WORK_SUBDIR" ]
 then
     echo "Failure: WORK_DIR already exists:"
     echo "$WORK_DIR"
     exit 1
 fi
 
-mkdir "$WORK_DIR"
-mkdir "${WORK_DIR}"/ctrl
-mkdir "${WORK_DIR}"/exp
+mkdir "$WORK_SUBDIR"
+mkdir "${WORK_SUBDIR}"/ctrl
+mkdir "${WORK_SUBDIR}"/exp
 
 # List files from $EXP_ARG and copy in chunks of 500
 find "$EXP_ARG" -maxdepth 1 -mindepth 1 -printf '%P\n' | \
-    xargs -n 500 -I '{}' cp -t "$WORK_DIR"/exp "${EXP_DIR}"/'{}'
+    xargs -n 500 -I '{}' cp -t "$WORK_SUBDIR"/exp "${EXP_ARG}"/'{}'
 # Same, but randomly choose only NUM_ARG to copy
-for dir in CTRL_ARG
+for dir in ${CTRL_ARG}
 do
     find "$dir" -maxdepth 1 -mindepth 1 -printf '%P\n' | \
         shuf -n "$NUM_ARG" | \
-        xargs -n 500 -I '{}' cp -t "$WORK_DIR"/ctrl "${dir}"/'{}'
+        xargs -n 500 -I '{}' cp -t "$WORK_SUBDIR"/ctrl "${dir}"/'{}'
 done
 
 # To be in same directory as fast5 basedirs
-cd "$WORK_DIR" || EXIT
+cd "$WORK_SUBDIR" || EXIT
 
 # I believe we need exp and ctrl to be resquiggled to corrected groups with the
 # same name, otherwise "tombo detect_modifications model_sample_compare" might
 # not compare the right corrected groups. (Tombo's choice of which corrected
 # group to read in the absence of the --corrected-group option is undocumented.)
 # That's why I added the --corrected-group and --overwrite options.
-#CORR_GRP
+CORR_GRP="resamp3_resquiggle"
 NUM_PROC=28 # Number of processes to use during Tombo resquiggling
 for which in exp ctrl
 do
@@ -90,8 +94,7 @@ done
 # parallel, rather than in series, but I assume the experimental sample is
 # rather small compared to the control sample:
 
-EXT='' # To help distinguish output files from runs with different parameters
-detect_modifications model_sample_compare \
+tombo detect_modifications model_sample_compare \
     --fast5-basedirs exp \
     --control-fast5-basedirs ctrl \
     --statistics-file-basename "sf_${NUM_ARG}${EXT}" \
