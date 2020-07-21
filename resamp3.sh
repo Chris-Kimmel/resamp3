@@ -12,8 +12,11 @@
 
 # $ source resamp3.sh [CTRL_ARG] [EXP_ARG] [NUM_ARG] [REF_ARG] [WORK_DIR]
 
-# CTRL_ARG (absolute path to a directory) contains control fast5s to be
-# randomly sampled and copied
+# CTRL_ARG (space-separated list of absolute paths to directories) Unfortunately
+# the control fast5 reads we're interested in are spread across two directories.
+# Provide a space-separated list of these two filepaths and wrap the whole thing
+# in quotes. (So [CTRL_ARG] looks like "first/path second/path", including the
+# quotes).
 
 # EXP_ARG (absolute path to a directory) contains experimental fast5s, all of
 # which will be copied
@@ -56,9 +59,12 @@ mkdir "${WORK_DIR}"/exp
 find "$EXP_ARG" -maxdepth 1 -mindepth 1 -printf '%P\n' | \
     xargs -n 500 -I '{}' cp -t "$WORK_DIR"/exp "${EXP_DIR}"/'{}'
 # Same, but randomly choose only NUM_ARG to copy
-find "$CTRL_ARG" -maxdepth 1 -mindepth 1 -printf '%P\n' | \
-    shuf -n "$NUM_ARG" | \
-    xargs -n 500 -I '{}' cp -t "$WORK_DIR"/ctrl "${CTRL_ARG}"/'{}'
+for dir in CTRL_ARG
+do
+    find "$dir" -maxdepth 1 -mindepth 1 -printf '%P\n' | \
+        shuf -n "$NUM_ARG" | \
+        xargs -n 500 -I '{}' cp -t "$WORK_DIR"/ctrl "${dir}"/'{}'
+done
 
 # To be in same directory as fast5 basedirs
 cd "$WORK_DIR" || EXIT
