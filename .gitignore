@@ -2,3 +2,5 @@
 !/resamp3.sh
 !/qsub_submitter.sh
 !/.gitignore
+!/logs
+/logs/*
