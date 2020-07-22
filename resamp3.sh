@@ -10,7 +10,7 @@
 
 # This script takes four command-line arguments (must be run with "source")
 
-# $ source resamp3.sh [CTRL_ARG] [EXP_ARG] [NUM_ARG] [REF_ARG] [WORK_DIR]
+# $ source resamp3.sh [CTRL_ARG] [EXP_ARG] [NUM_ARG] [REF_ARG] [WORK_ARG]
 
 # CTRL_ARG (space-separated list of absolute paths to directories) Unfortunately
 # the control fast5 reads we're interested in are spread across two directories.
@@ -26,7 +26,7 @@
 # REF_ARG (absolute path to FASTA file) is a path to the FASTA file to use as a
 # reference during the resquiggling step
 
-# WORK_DIR (basename of a directory) tells the script what to call the directory
+# WORK_ARG (basename of a directory) tells the script what to call the directory
 # that it will store all its data and results in. The current working directory
 # must not already contain a directory of this name.
 
@@ -42,16 +42,16 @@ CTRL_ARG=$1
 EXP_ARG=$2
 NUM_ARG=$3
 REF_ARG=$4
-WORK_DIR=$5
+WORK_ARG=$5
 
 # EXT is to help distinguish output files from runs with different parameters
 EXT=''
-WORK_SUBDIR="${WORK_DIR}"/"${NUM_ARG}"_reads${EXT}
+WORK_SUBDIR="${WORK_ARG}"/"${NUM_ARG}"_reads${EXT}
 
 if [ -e "$WORK_SUBDIR" ]
 then
-    echo "Failure: WORK_DIR already exists:"
-    echo "$WORK_DIR"
+    echo "Failure: WORK_ARG already exists:"
+    echo "$WORK_ARG"
     exit 1
 fi
 
