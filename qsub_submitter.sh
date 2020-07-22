@@ -5,12 +5,16 @@ NUM_ARG_LIST="20 30"
 REF_ARG=/fs/project/PAS1405/General/Kimmel_Chris/RNA_section__454_9627.fa
 WORK_ARG=/users/PAS1405/kimmel/resamp3
 
-for NUM_ARG in NUM_ARG_LIST:
+for num_arg in $NUM_ARG_LIST
 do
-    JOB_FILE=${RANDOM}${RANDOM}
+    RANDOM_ID=${RANDOM}${RANDOM} # Consider moving this outside the loop
+    JOB_FILE=${num_arg}_${RANDOM_ID}
+
     echo "cd /users/PAS1405/kimmel/resamp3" > ${JOB_FILE}
-    echo "source resamp3.sh \"${CTRL_ARG}\" ${EXP_ARG} ${NUM_ARG} ${REF_ARG} ${WORK_ARG}" \
+    echo "source resamp3.sh \"${CTRL_ARG}\" ${EXP_ARG} ${num_arg} ${REF_ARG} ${WORK_ARG}" \
         >> ${JOB_FILE}
-    qsub -l walltime=2:00:00,nodes=1:ppn=28 -j oe -N ${NUM_ARG}_${JOB_FILE} ${JOB_FILE}
-    echo "rm $JOB_FILE" # TODO: Remove echo and quotes
+    qsub -l walltime=2:00:00,nodes=1:ppn=28 -j oe \
+        -N ${JOB_FILE} -o logs/${JOB_FILE}.output ${JOB_FILE}
+
+    rm $JOB_FILE
 done

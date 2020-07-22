@@ -31,7 +31,7 @@
 # must not already contain a directory of this name.
 
 conda activate tombo2 # Change conda environment name to match your own
-trap 'set +u; conda deactivate' EXIT # Ensures deactivation no matter what
+trap 'set +u; set +x ; conda deactivate' EXIT # Ensures conda deactivates
 # Really it shouldn't matter that the environment deactivates, since this script
 # is intended to run as a qsub job
 
@@ -105,7 +105,7 @@ tombo detect_modifications model_sample_compare \
 
 for which in exp ctrl
 do
-    tar -cf ${which}.tar ${which}/*
+    tar -cf ${which}.tar ${which}
     rm -r $which
 done
 
