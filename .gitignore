@@ -2,5 +2,5 @@
 !/resamp3.sh
 !/qsub_submitter.sh
 !/.gitignore
-!/logs/*
-/logs/.dummy_file
+/logs/*
+!/logs/.dummy_file
