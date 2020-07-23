@@ -13,7 +13,7 @@ do
     echo "cd /users/PAS1405/kimmel/resamp3" > ${JOB_FILE}
     echo "source resamp3.sh \"${CTRL_ARG}\" ${EXP_ARG} ${num_arg} ${REF_ARG} ${WORK_ARG}" \
         >> ${JOB_FILE}
-    qsub -l walltime=2:00:00,nodes=1:ppn=28 -j oe \
+    qsub -l walltime=48:00:00,nodes=1:ppn=28 -j oe \
         -N ${JOB_FILE} -o logs/${JOB_FILE}.output ${JOB_FILE}
 
     rm $JOB_FILE
